@@ -33,7 +33,7 @@
       font-size:15px;
       line-height:1.45;
     }
-    button,input,select{font:inherit}
+    button,input{font:inherit}
     .site-bar{
       min-height:76px;padding:18px 5vw;background:var(--blue);color:var(--white);
       display:flex;align-items:center;justify-content:center;text-align:center;
@@ -84,10 +84,10 @@
       display:block;margin-bottom:5px;color:var(--charcoal-deep);font-size:.72rem;font-weight:800;letter-spacing:.045em;text-transform:uppercase;
     }
     .small{display:block;margin-top:5px;color:var(--muted);font-size:.76rem;line-height:1.45}
-    input,select{
+    input{
       width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);outline:none;
     }
-    input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,91,234,.12)}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,91,234,.12)}
     input[type="range"]{padding:0;border:0;box-shadow:none;accent-color:var(--blue);background:transparent}
     .upload{
       position:relative;min-height:116px;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -115,42 +115,9 @@
       margin-bottom:8px;color:var(--charcoal-deep);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
     }
     canvas{display:block;width:100%;height:210px}
-    .sector-editor{margin-top:12px}
-
-    .tech-editor{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px;
-      margin-top:14px;
-    }
-    .tech-sector{
-      padding:11px 12px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      background:#fff;
-    }
-    .tech-sector__range{
-      margin-bottom:7px;
-      color:var(--charcoal-deep);
-      font-size:.78rem;
-      font-weight:800;
-    }
-    .tech-sector select{
-      width:100%;
-      padding:9px 10px;
-      border:1px solid var(--line);
-      border-radius:8px;
-      background:#fff;
-      color:var(--text);
-      outline:none;
-      font:inherit;
-    }
-    .tech-sector select:focus{
-      border-color:var(--blue);
-      box-shadow:0 0 0 3px rgba(47,91,234,.12);
-    }
+    .sector-editor{margin-top:12px;display:flex;flex-direction:column;gap:12px}
     .sector-row{
-      display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:8px;
+      display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;
     }
     .sector-row .field{padding:10px}
     button{
@@ -185,7 +152,7 @@
       color:var(--charcoal-deep);font-size:.8rem;line-height:1.55;
     }
     @media(max-width:820px){
-      .grid-2,.grid-3,.summary-grid,.tech-editor{grid-template-columns:1fr}
+      .grid-2,.grid-3,.summary-grid{grid-template-columns:1fr}
     }
     @media(max-width:620px){
       .time-grid{grid-template-columns:1fr}
@@ -221,7 +188,7 @@
         <input type="file" id="gpxFile" accept=".gpx,application/gpx+xml,application/xml,text/xml">
         <div>
           <div class="upload-title">Selecciona o arrastra un archivo GPX</div>
-          
+          <div class="upload-text">La herramienta analizará distancia, ascensos, descensos y pendientes del recorrido.</div>
         </div>
       </label>
 
@@ -229,7 +196,7 @@
         <div class="kpi"><div class="kpi-label">Distancia</div><div class="kpi-value" id="sumDistance">—</div></div>
         <div class="kpi"><div class="kpi-label">Desnivel +</div><div class="kpi-value" id="sumUp">—</div></div>
         <div class="kpi"><div class="kpi-label">Desnivel −</div><div class="kpi-value" id="sumDown">—</div></div>
-        <div class="kpi"><div class="kpi-label">Desnivel + / km</div><div class="kpi-value" id="sumDplusKm">—</div></div>
+        <div class="kpi"><div class="kpi-label">Pendiente media abs.</div><div class="kpi-value" id="sumGrade">—</div></div>
       </div>
 
       <div class="status" id="fileStatus"></div>
@@ -239,17 +206,46 @@
       <div class="section-title">
         <div>
           <span class="section-number">2 · Objetivo</span>
-          <h2>Tiempo objetivo</h2>
+          <h2>Tiempo y pérdida de rendimiento</h2>
         </div>
       </div>
 
-      <div class="field">
-        <label>Tiempo objetivo</label>
-        <div class="time-grid">
-          <div><span class="small">Horas</span><input type="number" id="targetH" min="0" step="1" value="5"></div>
-          <div><span class="small">Minutos</span><input type="number" id="targetM" min="0" max="59" step="1" value="0"></div>
-          <div><span class="small">Segundos</span><input type="number" id="targetS" min="0" max="59" step="1" value="0"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Tiempo objetivo</label>
+          <div class="time-grid">
+            <div><span class="small">Horas</span><input type="number" id="targetH" min="0" step="1" value="5"></div>
+            <div><span class="small">Minutos</span><input type="number" id="targetM" min="0" max="59" step="1" value="0"></div>
+            <div><span class="small">Segundos</span><input type="number" id="targetS" min="0" max="59" step="1" value="0"></div>
+          </div>
         </div>
+
+        <div class="field">
+          <label for="performanceLoss">Pérdida de rendimiento prevista (%)</label>
+          <input type="number" id="performanceLoss" min="0" max="40" step="0.5" value="10">
+          <span class="small">Diferencia relativa entre el inicio y el final de la carrera. El tiempo final siempre se mantiene exactamente igual al objetivo.</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px;">
+        <div class="slider-head">
+          <label for="curveShape" style="margin:0;">Distribución de la pérdida de rendimiento</label>
+          <span class="slider-value" id="curveLabel">Progresiva</span>
+        </div>
+
+        <input type="range" id="curveShape" min="0" max="100" step="1" value="45">
+
+        <div class="slider-labels">
+          <span>Más uniforme</span>
+          <span>Más concentrada al final</span>
+        </div>
+
+        <span class="small">El deslizador modifica cuándo aparece la pérdida de rendimiento, pero no cambia el porcentaje final definido.</span>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Distribución de la pérdida de rendimiento</div>
+        <canvas id="fatigueChart"></canvas>
       </div>
     </section>
 
@@ -268,68 +264,10 @@
       <div class="actions">
         <button type="button" id="addSector" class="secondary">+ Añadir punto de control</button>
       </div>
-
-      <div style="margin-top:18px;">
-        <div class="section-title" style="margin-bottom:8px;">
-          <div>
-            <span class="section-number">Tecnicidad</span>
-            <h2 style="font-size:.96rem;">Tecnicidad de cada sector</h2>
-          </div>
-        </div>
-        <p class="helper">Indica la tecnicidad percibida media de cada sector. Se utiliza como un ajuste secundario del pacing para representar cómo de corrible es el tramo en conjunto.</p>
-        <div class="tech-editor" id="techEditor"></div>
-      </div>
     </section>
 
-    <section class="section card" id="pacingAdjustments">
-      <div class="section-title">
-        <div>
-          <span class="section-number">4 · Ajuste</span>
-          <h2>Pérdida de rendimiento</h2>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="field">
-          <label for="fatigueResistance">Capacidad de resistencia a la fatiga</label>
-          <select id="fatigueResistance">
-            <option value="low">Baja</option>
-            <option value="medium" selected>Media</option>
-            <option value="high">Alta</option>
-            <option value="very_high">Muy alta</option>
-          </select>
-          <span class="small">Ajusta la respuesta esperada a la fatiga a lo largo de la carrera.</span>
-        </div>
-
-        <div class="field">
-          <label for="performanceLoss">Pérdida de rendimiento prevista (%)</label>
-          <input type="number" id="performanceLoss" min="0" max="60" step="0.5" value="10">
-          <span class="small" id="lossGuide">Orientación según la duración prevista.</span>
-        </div>
-      </div>
-
-      <div class="chart-wrap" style="margin-top:10px;">
-        <div class="chart-title">Pérdida de rendimiento</div>
-        <canvas id="fatigueChart"></canvas>
-      </div>
-
-      <div class="field" style="margin-top:10px;">
-        <div class="slider-head">
-          <label for="curveShape" style="margin:0;">Distribución de la pérdida de rendimiento</label>
-          <span class="slider-value" id="curveLabel">Progresiva</span>
-        </div>
-
-        <input type="range" id="curveShape" min="0" max="100" step="1" value="55">
-
-        <div class="slider-labels">
-          <span>Más uniforme</span>
-          <span>Más concentrada al final</span>
-        </div>
-
-        <span class="small">Desplaza la barra para modificar cómo se reparte la pérdida a lo largo de la carrera.</span>
-      </div>
-
-      <div class="actions">
+    <section class="section card">
+      <div class="actions" style="margin-top:0;">
         <button type="button" id="calculateBtn" class="primary">Calcular pacing</button>
         <button type="button" id="clearBtn" class="secondary">Borrar datos</button>
       </div>
@@ -339,7 +277,7 @@
     <section class="section card hidden" id="resultsSection">
       <div class="section-title">
         <div>
-          <span class="section-number">5 · Resultado</span>
+          <span class="section-number">4 · Resultado</span>
           <h2>Pacing estimado</h2>
         </div>
       </div>
@@ -360,7 +298,7 @@
               <th>Distancia</th>
               <th>D+</th>
               <th>D−</th>
-              <th>Tecnicidad</th>
+              <th>Pendiente abs.</th>
               <th>Tiempo sector</th>
               <th>Tiempo acumulado</th>
             </tr>
@@ -370,7 +308,7 @@
       </div>
 
       <div class="note">
-        El pacing se adapta al perfil del recorrido, la tecnicidad percibida de cada sector y la evolución de la fatiga seleccionada. La suma de todos los parciales coincide exactamente con el tiempo objetivo.
+        El tiempo se distribuye según el coste relativo del perfil y la curva de pérdida de rendimiento seleccionada. La suma de todos los parciales coincide exactamente con el tiempo objetivo.
       </div>
     </section>
   </main>
@@ -381,61 +319,6 @@ let routeDistanceKm = 0;
 let sectorCounter = 0;
 
 const EARTH_R = 6371000;
-
-// Factores conservadores calibrados a partir de la tendencia observada
-// en los parciales reales. La tecnicidad se mantiene deliberadamente
-// moderada porque en una única carrera no puede aislarse completamente
-// del desnivel y del tipo exacto de terreno.
-const TECHNICALITY_BASE = {
-  low: 1.00,
-  medium: 0.992,
-  high: 0.975
-};
-
-// La tecnicidad se interpreta como promedio percibido del sector.
-// El factor representa la fracción de velocidad conservada.
-const TECHNICALITY_TERRAIN_EFFECT = {
-  low:    { uphill:0.000, flat:0.000, downhill:0.000 },
-  medium: { uphill:0.003, flat:0.006, downhill:0.012 },
-  high:   { uphill:0.007, flat:0.015, downhill:0.032 }
-};
-
-// La resistencia a la fatiga modifica cuándo aparece el deterioro
-// y cuánto se expresa según el tipo de terreno.
-const FATIGUE_RESISTANCE = {
-  low: {
-    onset:0.05,
-    exponent:1.00,
-    uphill:1.00,
-    flat:1.10,
-    downhill:1.22,
-    technical:1.06
-  },
-  medium: {
-    onset:0.08,
-    exponent:1.40,
-    uphill:0.88,
-    flat:1.00,
-    downhill:1.12,
-    technical:1.04
-  },
-  high: {
-    onset:0.16,
-    exponent:1.50,
-    uphill:0.78,
-    flat:0.90,
-    downhill:1.02,
-    technical:1.02
-  },
-  very_high: {
-    onset:0.22,
-    exponent:1.80,
-    uphill:0.68,
-    flat:0.82,
-    downhill:0.94,
-    technical:0.99
-  }
-};
 
 function clamp(x,min,max){
   return Math.max(min,Math.min(max,x));
@@ -465,207 +348,40 @@ function targetSeconds(){
   return h*3600 + m*60 + s;
 }
 
-function recommendedLossRange(hours){
-  // Orientación práctica para la pérdida de velocidad disponible
-  // hacia el final de la prueba. No son umbrales fisiológicos rígidos.
-  if(hours < 3)  return [3,8];
-  if(hours < 6)  return [5,12];
-  if(hours < 10) return [8,18];
-  if(hours < 16) return [12,25];
-  if(hours < 24) return [15,30];
-  return [20,35];
-}
+function terrainFactor(grade){
+  const g = clamp(grade,-0.35,0.35);
 
-function updateLossGuide(){
-  const seconds = targetSeconds();
-  const guide = document.getElementById("lossGuide");
-  if(!guide) return;
-
-  if(seconds <= 0){
-    guide.textContent = "Introduce un tiempo objetivo para ver un rango orientativo.";
-    return;
-  }
-
-  const hours = seconds/3600;
-  const range = recommendedLossRange(hours);
-
-  guide.textContent =
-    `Orientación para una carrera de ${hours.toFixed(hours < 10 ? 1 : 0)} h: ` +
-    `${range[0]}–${range[1]} %. Usa la parte baja del rango si mantienes bien el rendimiento ` +
-    `y la alta si sueles acusar más la fatiga.`;
-}
-
-function baseSpeedFactor(grade){
-  const g = clamp(grade,-0.40,0.40);
-
-  if(g >= 0){
-    // Fracción de velocidad respecto a un tramo corrible de referencia.
-    // La pérdida de velocidad crece progresivamente con la pendiente.
-    const speed = 1 / (1 + 2.8*g + 9.0*g*g);
-    return clamp(speed,0.20,1.00);
+  if (g >= 0){
+    return 1 + 4.2*g + 8.5*g*g;
   }
 
   const x = Math.abs(g);
-
-  // Bajadas moderadas permiten aumentar la velocidad; en pendientes
-  // pronunciadas la ganancia se reduce por limitaciones mecánicas.
-  const timeFactor = clamp(1 - 3.0*x + 4.0*x*x,0.68,1.45);
-  return clamp(1/timeFactor,0.69,1.47);
+  const factor = 1 - 1.9*x + 5.0*x*x;
+  return clamp(factor,0.72,1.65);
 }
 
-function terrainType(grade){
-  if(grade > 0.035) return "uphill";
-  if(grade < -0.035) return "downhill";
-  return "flat";
-}
-
-function resistanceSettings(){
-  const key = document.getElementById("fatigueResistance").value;
-  return FATIGUE_RESISTANCE[key] || FATIGUE_RESISTANCE.medium;
-}
-
-function curveConcentration(){
-  const slider =
-    parseFloat(document.getElementById("curveShape").value)||0;
-
-  return clamp(slider/100,0,1);
-}
-
-function resistanceShapeAdjustment(){
-  const key =
-    document.getElementById("fatigueResistance").value;
-
-  if(key==="low") return -0.15;
-  if(key==="high") return 0.12;
-  if(key==="very_high") return 0.22;
-
-  return 0;
-}
-
-function fatigueShapeParameters(){
-  const concentration = curveConcentration();
-  const resistanceAdj = resistanceShapeAdjustment();
-
-  // Amplitud: cuánto se diferencia el inicio del final.
-  const amplitude =
-    0.10 +
-    concentration*1.55;
-
-  // Exponente: cuánto se retrasa la parte principal del deterioro.
-  const exponent = clamp(
-    1.00 +
-    concentration*2.20 +
-    resistanceAdj,
-    0.85,
-    3.60
-  );
-
-  return { amplitude, exponent };
+function curveExponent(){
+  const slider = parseFloat(document.getElementById("curveShape").value)||0;
+  return 1 + (slider/100)*2.2;
 }
 
 function fatigueLossAt(progress){
-  const lossPct = Math.max(
-    0,
-    parseFloat(
-      document.getElementById("performanceLoss").value
-    ) || 0
-  );
-
-  const p = clamp(progress,0,1);
-  const { amplitude, exponent } =
-    fatigueShapeParameters();
-
-  // La curva se normaliza para conservar aproximadamente la misma
-  // magnitud media independientemente de la posición del deslizador.
-  //
-  // Izquierda -> pérdida casi uniforme.
-  // Derecha   -> menos pérdida al inicio y más al final.
-  const rawShape =
-    1 + amplitude*Math.pow(p,exponent);
-
-  const meanShape =
-    1 + amplitude/(exponent+1);
-
-  const normalizedShape =
-    rawShape/meanShape;
-
-  return clamp(
-    (lossPct/100)*normalizedShape,
-    0,
-    0.55
-  );
+  const lossPct = Math.max(0,parseFloat(document.getElementById("performanceLoss").value)||0);
+  const exponent = curveExponent();
+  return (lossPct/100) * Math.pow(clamp(progress,0,1),exponent);
 }
 
-function technicalitySpeedFactor(level, grade){
-  const base = TECHNICALITY_BASE[level] ?? 1;
-  const type = terrainType(grade);
-  const effect = TECHNICALITY_TERRAIN_EFFECT[level]?.[type] ?? 0;
-
-  // La tecnicidad percibida media reduce la velocidad potencial del sector.
-  return clamp(base * (1-effect),0.68,1.00);
-}
-
-function effectiveSpeedLoss(level, grade, fatigueLoss){
-  const settings = resistanceSettings();
-  const type = terrainType(grade);
-
-  let terrainMultiplier = settings.flat;
-  if(type === "uphill") terrainMultiplier = settings.uphill;
-  if(type === "downhill") terrainMultiplier = settings.downhill;
-
-  const technicalLevel =
-    level === "high" ? 1 :
-    level === "medium" ? 0.5 : 0;
-
-  const technicalMultiplier =
-    1 + technicalLevel * (settings.technical - 1);
-
-  // Una sola pérdida combinada de velocidad. No se apilan penalizaciones
-  // independientes de fatiga, bajada, subida y tecnicidad.
-  const adjustedLoss =
-    fatigueLoss *
-    terrainMultiplier *
-    technicalMultiplier;
-
-  return clamp(adjustedLoss,0,0.50);
-}
-
-function effectiveSpeedFactor(level, grade, fatigueLoss){
-  return clamp(
-    1 - effectiveSpeedLoss(level,grade,fatigueLoss),
-    0.50,
-    1.00
-  );
-}
-
-function technicalityLabel(level){
-  if(level==="medium") return "Medio técnico";
-  if(level==="high") return "Muy técnico";
-  return "Poco técnico";
+function fatigueFactorAt(progress){
+  return 1 + fatigueLossAt(progress);
 }
 
 function updateCurveLabel(){
-  const x =
-    parseFloat(
-      document.getElementById("curveShape").value
-    ) || 0;
-
-  let label = "Más uniforme";
-
-  if(x >= 25 && x < 60){
-    label = "Progresiva";
-  }
-
-  if(x >= 60 && x < 85){
-    label = "Concentrada al final";
-  }
-
-  if(x >= 85){
-    label = "Muy concentrada al final";
-  }
-
-  document.getElementById("curveLabel").textContent =
-    label;
+  const x = parseFloat(document.getElementById("curveShape").value)||0;
+  let label = "Casi lineal";
+  if (x >= 25 && x < 60) label = "Progresiva";
+  if (x >= 60 && x < 85) label = "Concentrada al final";
+  if (x >= 85) label = "Muy concentrada al final";
+  document.getElementById("curveLabel").textContent = label;
 }
 
 function drawFatigueChart(){
@@ -688,16 +404,7 @@ function drawFatigueChart(){
 
   ctx.clearRect(0,0,w,h);
 
-  let maxLoss = 1;
-
-  for(let i=0;i<=100;i++){
-    maxLoss = Math.max(
-      maxLoss,
-      fatigueLossAt(i/100)*100
-    );
-  }
-
-  maxLoss *= 1.08;
+  const maxLoss = Math.max(1,parseFloat(document.getElementById("performanceLoss").value)||0);
 
   ctx.strokeStyle = "#e2e5e9";
   ctx.lineWidth = 1;
@@ -761,55 +468,6 @@ function smoothElevations(points){
   return points.map((p,i)=>({...p,eleSmooth:smoothed[i]}));
 }
 
-function computeStableGrades(points,windowM=50){
-  if(points.length < 2) return;
-
-  let left=0;
-  let right=0;
-
-  for(let i=0;i<points.length;i++){
-    const center=points[i].distanceM;
-    const half=windowM/2;
-
-    while(left < i && points[left].distanceM < center-half){
-      left++;
-    }
-
-    if(right < i) right=i;
-    while(
-      right < points.length-1 &&
-      points[right].distanceM < center+half
-    ){
-      right++;
-    }
-
-    const a=points[Math.max(0,left)];
-    const b=points[Math.min(points.length-1,right)];
-    const dx=b.distanceM-a.distanceM;
-
-    let grade=0;
-
-    if(dx >= 12){
-      const dz=
-        (b.eleSmooth ?? b.ele) -
-        (a.eleSmooth ?? a.ele);
-
-      grade=clamp(dz/dx,-0.40,0.40);
-    }else if(i>0){
-      const prev=points[i-1];
-      const seg=Math.max(1,points[i].distanceM-prev.distanceM);
-      const dz=
-        (points[i].eleSmooth ?? points[i].ele) -
-        (prev.eleSmooth ?? prev.ele);
-
-      grade=clamp(dz/seg,-0.40,0.40);
-    }
-
-    points[i].grade=grade;
-    points[i].baseSpeedFactor=baseSpeedFactor(grade);
-  }
-}
-
 function parseGPX(text){
   const xml = new DOMParser().parseFromString(text,"application/xml");
 
@@ -837,7 +495,7 @@ function parseGPX(text){
       distanceM:0,
       segmentM:0,
       grade:0,
-      baseSpeedFactor:1
+      terrainFactor:1
     };
   }).filter(p=>isFinite(p.lat)&&isFinite(p.lon));
 
@@ -857,11 +515,14 @@ function parseGPX(text){
 
     cumulative += horizontal;
 
+    const dz = (cur.eleSmooth ?? cur.ele) - (prev.eleSmooth ?? prev.ele);
+    const grade = clamp(dz/horizontal,-0.45,0.45);
+
     cur.segmentM = horizontal;
     cur.distanceM = cumulative;
+    cur.grade = grade;
+    cur.terrainFactor = terrainFactor(grade);
   }
-
-  computeStableGrades(points,50);
 
   return points;
 }
@@ -905,66 +566,8 @@ function addSectorInput(value=""){
     <button type="button" class="danger remove-sector">Eliminar</button>
   `;
 
-  row.querySelector(".remove-sector").onclick=()=>{
-    row.remove();
-    renderTechnicalityEditor();
-    recalculateIfVisible();
-  };
-
-  row.querySelector(".sector-km").addEventListener("input",()=>{
-    renderTechnicalityEditor();
-    recalculateIfVisible();
-  });
-
+  row.querySelector(".remove-sector").onclick=()=>row.remove();
   editor.appendChild(row);
-  renderTechnicalityEditor();
-}
-
-function renderTechnicalityEditor(){
-  const editor = document.getElementById("techEditor");
-  if(!editor) return;
-
-  const previous = [...editor.querySelectorAll(".sector-tech")]
-    .map(select=>select.value);
-
-  const boundaries = getBoundaries();
-
-  editor.innerHTML="";
-
-  if(!boundaries || boundaries.length<2){
-    editor.innerHTML='<div class="helper">Carga un GPX para definir la tecnicidad de los sectores.</div>';
-    return;
-  }
-
-  for(let i=0;i<boundaries.length-1;i++){
-    const item=document.createElement("div");
-    item.className="tech-sector";
-
-    const selected = previous[i] || "low";
-
-    item.innerHTML=`
-      <div class="tech-sector__range">${boundaries[i].toFixed(1)}–${boundaries[i+1].toFixed(1)} km</div>
-      <select class="sector-tech" data-index="${i}">
-        <option value="low" ${selected==="low"?"selected":""}>Poco técnico</option>
-        <option value="medium" ${selected==="medium"?"selected":""}>Medio técnico</option>
-        <option value="high" ${selected==="high"?"selected":""}>Muy técnico</option>
-      </select>
-    `;
-
-    const select=item.querySelector(".sector-tech");
-    if(select){
-      select.addEventListener("change",recalculateIfVisible);
-    }
-
-    editor.appendChild(item);
-  }
-}
-
-function getSectorTechnicalities(count){
-  const values=[...document.querySelectorAll(".sector-tech")]
-    .map(select=>select.value);
-
-  return Array.from({length:count},(_,i)=>values[i] || "low");
 }
 
 function resetSectorEditor(){
@@ -978,8 +581,6 @@ function resetSectorEditor(){
     addSectorInput("");
     addSectorInput("");
   }
-
-  renderTechnicalityEditor();
 }
 
 function getBoundaries(){
@@ -1001,16 +602,16 @@ function getBoundaries(){
   return [0,...unique,routeDistanceKm];
 }
 
-function buildSectorBase(startKm,endKm,technicality){
+function analyzeSector(startKm,endKm){
   const startM=startKm*1000;
   const endM=endKm*1000;
+  const totalDistanceM=routePoints[routePoints.length-1].distanceM;
 
+  let cost=0;
   let up=0;
   let down=0;
   let distance=0;
   let gradeWeighted=0;
-  let baseTimeWeight=0;
-  const pieces=[];
 
   for(let i=1;i<routePoints.length;i++){
     const a=routePoints[i-1];
@@ -1033,21 +634,9 @@ function buildSectorBase(startKm,endKm,technicality){
     distance+=overlap;
     gradeWeighted+=Math.abs(b.grade)*overlap;
 
-    const terrainSpeed = baseSpeedFactor(b.grade);
-    const techSpeed = technicalitySpeedFactor(technicality,b.grade);
-    const baseSpeed = clamp(terrainSpeed*techSpeed,0.12,1.50);
-
-    // Peso temporal basal: distancia / velocidad relativa.
-    const pieceBaseTimeWeight = overlap/baseSpeed;
-
-    baseTimeWeight += pieceBaseTimeWeight;
-
-    pieces.push({
-      overlap,
-      grade:b.grade,
-      baseSpeed,
-      baseTimeWeight:pieceBaseTimeWeight
-    });
+    const midpoint=(segStart+segEnd)/2;
+    const progress=midpoint/totalDistanceM;
+    cost += overlap*b.terrainFactor*fatigueFactorAt(progress);
   }
 
   return {
@@ -1057,155 +646,12 @@ function buildSectorBase(startKm,endKm,technicality){
     up,
     down,
     avgAbsGrade:distance?gradeWeighted/distance*100:0,
-    technicality,
-    upPerKm:distance>0 ? up/(distance/1000) : 0,
-    baseTimeWeight,
-    pieces,
-    timeWeight:0,
-    progressEnd:0
+    cost
   };
 }
 
-function applySectorRunnabilityCalibration(sectors){
-  const totalDistanceKm =
-    sectors.reduce((sum,s)=>sum+s.distanceKm,0);
-
-  const totalUp =
-    sectors.reduce((sum,s)=>sum+s.up,0);
-
-  const courseUpPerKm =
-    totalDistanceKm > 0
-      ? totalUp/totalDistanceKm
-      : 0;
-
-  sectors.forEach(sector=>{
-    const sectorUpPerKm =
-      sector.distanceKm > 0
-        ? sector.up/sector.distanceKm
-        : courseUpPerKm;
-
-    let runnabilityFactor=1;
-
-    if(
-      courseUpPerKm > 0 &&
-      sectorUpPerKm > 0
-    ){
-      // Ajuste suave: los sectores con menor densidad de ascenso que
-      // el conjunto de la prueba se consideran relativamente más
-      // corribles; los más concentrados, algo más lentos.
-      runnabilityFactor = clamp(
-        Math.pow(
-          courseUpPerKm/sectorUpPerKm,
-          0.55
-        ),
-        0.90,
-        1.14
-      );
-    }
-
-    sector.runnabilityFactor=
-      runnabilityFactor;
-
-    sector.pieces.forEach(piece=>{
-      piece.calibratedBaseSpeed =
-        clamp(
-          piece.baseSpeed*runnabilityFactor,
-          0.08,
-          1.60
-        );
-
-      piece.baseTimeWeight =
-        piece.overlap /
-        piece.calibratedBaseSpeed;
-    });
-
-    sector.baseTimeWeight =
-      sector.pieces.reduce(
-        (sum,piece)=>sum+piece.baseTimeWeight,
-        0
-      );
-  });
-
-  return sectors;
-}
-
-function applyFatigueToSectors(sectors){
-  applySectorRunnabilityCalibration(sectors);
-
-  const totalBaseWeight =
-    sectors.reduce((sum,s)=>sum+s.baseTimeWeight,0);
-
-  let accumulatedBaseWeight=0;
-
-  sectors.forEach(sector=>{
-    let dynamicTimeWeight=0;
-
-    sector.pieces.forEach(piece=>{
-      const midpointWeight =
-        accumulatedBaseWeight + piece.baseTimeWeight/2;
-
-      const progress =
-        totalBaseWeight>0
-          ? midpointWeight/totalBaseWeight
-          : 0;
-
-      const fatigueLoss = fatigueLossAt(progress);
-
-      const fatigueSpeed =
-        effectiveSpeedFactor(
-          sector.technicality,
-          piece.grade,
-          fatigueLoss
-        );
-
-      // Al inicio se conserva una pequeña ventaja de economía/fluidez
-      // que desaparece progresivamente durante el primer tercio.
-      // Evita que recorridos largos asignen demasiado tiempo al inicio.
-      const freshnessBonus =
-        1 + 0.12*Math.pow(
-          Math.max(0,1-progress/0.30),
-          1.25
-        );
-
-      const baseSpeedForPacing =
-        piece.calibratedBaseSpeed ??
-        piece.baseSpeed;
-
-      const effectiveSpeed =
-        clamp(
-          baseSpeedForPacing *
-          fatigueSpeed *
-          freshnessBonus,
-          0.08,
-          1.65
-        );
-
-      dynamicTimeWeight += piece.overlap/effectiveSpeed;
-
-      accumulatedBaseWeight += piece.baseTimeWeight;
-    });
-
-    sector.timeWeight=dynamicTimeWeight;
-    sector.progressEnd=
-      totalBaseWeight>0
-        ? accumulatedBaseWeight/totalBaseWeight
-        : 0;
-  });
-
-  return sectors;
-}
-
-function recalculateIfVisible(){
-  const results=document.getElementById("resultsSection");
-  if(results && !results.classList.contains("hidden") && routePoints.length>=2){
-    calculatePacing({scroll:false, silent:true});
-  }
-}
-
-function calculatePacing(options={}){
+function calculatePacing(){
   const status=document.getElementById("status");
-  const shouldScroll = options.scroll !== false;
-  const silent = options.silent === true;
 
   if(routePoints.length<2){
     status.textContent="Carga primero un archivo GPX.";
@@ -1234,34 +680,20 @@ function calculatePacing(options={}){
     return;
   }
 
-  const technicalities=getSectorTechnicalities(boundaries.length-1);
-
-  let sectors=[];
+  const sectors=[];
   for(let i=0;i<boundaries.length-1;i++){
-    sectors.push(
-      buildSectorBase(
-        boundaries[i],
-        boundaries[i+1],
-        technicalities[i]
-      )
-    );
+    sectors.push(analyzeSector(boundaries[i],boundaries[i+1]));
   }
 
-  sectors=applyFatigueToSectors(sectors);
+  const totalCost=sectors.reduce((sum,s)=>sum+s.cost,0);
 
-  const totalTimeWeight=
-    sectors.reduce((sum,s)=>sum+s.timeWeight,0);
-
-  if(totalTimeWeight<=0){
-    status.textContent="No se ha podido calcular la distribución del recorrido.";
+  if(totalCost<=0){
+    status.textContent="No se ha podido calcular el coste relativo del recorrido.";
     return;
   }
 
   let cumulative=0;
-  const rawTimes=
-    sectors.map(
-      s=>totalSeconds*(s.timeWeight/totalTimeWeight)
-    );
+  const rawTimes=sectors.map(s=>totalSeconds*(s.cost/totalCost));
   const rounded=rawTimes.map(x=>Math.round(x));
   const diff=Math.round(totalSeconds)-rounded.reduce((a,b)=>a+b,0);
   rounded[rounded.length-1]+=diff;
@@ -1278,7 +710,7 @@ function calculatePacing(options={}){
       <td>${sector.distanceKm.toFixed(1)} km</td>
       <td>${Math.round(sector.up)} m</td>
       <td>${Math.round(sector.down)} m</td>
-      <td>${technicalityLabel(sector.technicality)}</td>
+      <td>${sector.avgAbsGrade.toFixed(1)}%</td>
       <td class="strong">${formatTime(rounded[index])}</td>
       <td class="strong">${formatTime(cumulative)}</td>
     `;
@@ -1288,23 +720,12 @@ function calculatePacing(options={}){
   const loss=Math.max(0,parseFloat(document.getElementById("performanceLoss").value)||0);
 
   document.getElementById("resultTargetTime").textContent=formatTime(totalSeconds);
-  const resistanceText=document.getElementById("fatigueResistance").options[document.getElementById("fatigueResistance").selectedIndex].text;
-
   document.getElementById("resultLoss").textContent=
-    `Pérdida de rendimiento: ${loss.toFixed(loss%1===0?0:1)}% · Resistencia ${resistanceText.toLowerCase()} · ${document.getElementById("curveLabel").textContent}`;
+    `Pérdida prevista: ${loss.toFixed(loss%1===0?0:1)}% · ${document.getElementById("curveLabel").textContent}`;
 
   document.getElementById("resultsSection").classList.remove("hidden");
-
-  if(!silent){
-    status.textContent=`Pacing calculado en ${sectors.length} sectores.`;
-  }
-
-  if(shouldScroll){
-    document.getElementById("resultsSection").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-  }
+  status.textContent=`Pacing calculado en ${sectors.length} sectores.`;
+  document.getElementById("resultsSection").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 async function loadGPXFile(file){
@@ -1319,12 +740,7 @@ async function loadGPXFile(file){
     document.getElementById("sumDistance").textContent=summary.distanceKm.toFixed(1)+" km";
     document.getElementById("sumUp").textContent=Math.round(summary.up)+" m";
     document.getElementById("sumDown").textContent=Math.round(summary.down)+" m";
-
-    const dplusPerKm =
-      summary.distanceKm > 0 ? summary.up/summary.distanceKm : 0;
-
-    document.getElementById("sumDplusKm").textContent=
-      Math.round(dplusPerKm)+" m/km";
+    document.getElementById("sumGrade").textContent=summary.avgAbsGrade.toFixed(1)+" %";
 
     document.getElementById("gpxSummary").classList.remove("hidden");
     status.textContent=`${file.name} cargado correctamente.`;
@@ -1346,14 +762,12 @@ function clearAll(){
   document.getElementById("targetH").value="5";
   document.getElementById("targetM").value="0";
   document.getElementById("targetS").value="0";
-  document.getElementById("fatigueResistance").value="medium";
   document.getElementById("performanceLoss").value="10";
-  document.getElementById("curveShape").value="55";
+  document.getElementById("curveShape").value="45";
   document.getElementById("resultsSection").classList.add("hidden");
   document.getElementById("status").textContent="";
   resetSectorEditor();
   drawFatigueChart();
-  updateLossGuide();
 }
 
 const fileInput=document.getElementById("gpxFile");
@@ -1383,27 +797,8 @@ dropZone.addEventListener("drop",e=>{
   if(file) loadGPXFile(file);
 });
 
-document.getElementById("curveShape").addEventListener("input",()=>{
-  drawFatigueChart();
-  recalculateIfVisible();
-});
-
-document.getElementById("performanceLoss").addEventListener("input",()=>{
-  drawFatigueChart();
-  recalculateIfVisible();
-});
-
-["targetH","targetM","targetS"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",()=>{
-    updateLossGuide();
-    recalculateIfVisible();
-  });
-});
-document.getElementById("fatigueResistance").addEventListener("change",()=>{
-  drawFatigueChart();
-  updateLossGuide();
-  recalculateIfVisible();
-});
+document.getElementById("curveShape").addEventListener("input",drawFatigueChart);
+document.getElementById("performanceLoss").addEventListener("input",drawFatigueChart);
 document.getElementById("addSector").onclick=()=>addSectorInput("");
 document.getElementById("calculateBtn").onclick=calculatePacing;
 document.getElementById("clearBtn").onclick=clearAll;
@@ -1412,7 +807,6 @@ window.addEventListener("resize",drawFatigueChart);
 
 resetSectorEditor();
 drawFatigueChart();
-updateLossGuide();
 </script>
 </body>
 </html>
